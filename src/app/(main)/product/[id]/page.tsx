@@ -407,8 +407,6 @@ export default function ProductDetailsPage() {
                     </div>
                 )}
             </main>
-
-            <Footer />
         </div>
     );
 }
