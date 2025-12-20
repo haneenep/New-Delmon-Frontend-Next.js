@@ -1,6 +1,6 @@
 "use client";
 
-import { useAppDispatch } from "@/src/hooks/dispatch";
+import { useAppDispatch } from "@/src/hooks/useRedux";
 import { registerUser } from "@/src/redux/auth/authThunk";
 import { RootState } from "@/src/redux/store";
 import { useState } from "react";

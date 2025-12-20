@@ -41,9 +41,7 @@ const Categories = () => {
     const fetchCategories = async () => {
       try {
         const res = await homeApi.getCategories("category");
-
-        // ✅ FIX: paginated response → extract inner data
-        setCategories(res.data.data);
+        setCategories(res.data);
       } catch (error) {
         console.error("Error fetching categories:", error);
       } finally {
@@ -55,13 +53,13 @@ const Categories = () => {
   }, []);
 
   console.log("cateogeissss:", categories);
-  
+
 
   if (loading) {
     return (
       <section className="py-6 md:py-12">
         <div className="max-w-[1400px] mx-auto px-4 sm:px-6">
-          <div className="flex gap-4 md:gap-8 overflow-x-auto pb-4">
+          <div className="flex gap-4 md:gap-8 overflow-x-auto pb-4 scrollbar-hide">
             {[1, 2, 3, 4, 5, 6].map((i) => (
               <div key={i} className="flex flex-col items-center gap-2">
                 <div className="w-24 h-24 md:w-36 md:h-36 rounded-full bg-gray-100 animate-pulse" />
@@ -74,7 +72,7 @@ const Categories = () => {
     );
   }
 
-  if (!categories.length) return null;
+  if (!categories?.length) return null;
 
   return (
     <section className="py-6 md:py-12">

@@ -1,28 +1,8 @@
 export interface ProductResponse {
   success: boolean
   message: string
-  data: Data
-  meta: Meta
-}
-
-export interface Data {
-  products: Products
-}
-
-export interface Products {
-  current_page: number
   data: ProductData[]
-  first_page_url: string
-  from: number
-  last_page: number
-  last_page_url: string
-  links: Link[]
-  next_page_url: string
-  path: string
-  per_page: number
-  prev_page_url: any
-  to: number
-  total: number
+  meta: Meta
 }
 
 export interface ProductData {
@@ -67,7 +47,7 @@ export interface ProductData {
   category_skip_7: any
   meta_title?: string
   meta_keyword: string
-  meta_description?: string
+  meta_description: any
   wholesale: number
   status: number
   created_at: string
@@ -101,12 +81,12 @@ export interface Category {
   meta_keywords: string
 }
 
-export interface Link {
-  url?: string
-  label: string
-  active: boolean
-}
-
 export interface Meta {
-  count: number
+  total: number
+  current_loaded: number
+  loaded: number
+  prev_page: any
+  next_page: number
+  current_page: number
+  last_page: number
 }

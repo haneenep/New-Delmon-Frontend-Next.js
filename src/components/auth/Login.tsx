@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
-import { useAppDispatch } from "@/src/hooks/dispatch";
+import { useAppDispatch } from "@/src/hooks/useRedux";
 import { RootState } from "@/src/redux/store";
 import { loginUser } from "@/src/redux/auth/authThunk";
 import { Button, FormInput } from "../common";

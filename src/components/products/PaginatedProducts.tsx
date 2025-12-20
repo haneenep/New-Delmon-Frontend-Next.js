@@ -18,9 +18,10 @@ const PaginatedProducts = () => {
             try {
                 const response: ProductResponse = await homeApi.getPaginatedProducts(currentPage, 12);
 
-                if (response.success && response.data?.products?.data) {
-                    const productDataList = response.data.products.data;
-                    setLastPage(response.data.products.last_page);
+                if (response.success && response.data) {
+                    const productDataList = response.data;
+
+                    setLastPage(response.meta.last_page)
 
                     const mappedProducts: Product[] = productDataList.map((item: ProductData) => {
                         let finalPrice = item.selling_price;
@@ -41,6 +42,7 @@ const PaginatedProducts = () => {
 
                         return {
                             id: item.id,
+                            slug: item.product_slug,
                             category: item.category?.category_name || "Uncategorized",
                             title: item.product_name,
                             price: `AED${finalPrice}`,

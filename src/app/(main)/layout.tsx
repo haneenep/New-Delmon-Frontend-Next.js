@@ -1,5 +1,6 @@
 import Footer from "@/src/components/layout/Footer";
 import Header from "@/src/components/layout/Header";
+import FeaturesSection from "@/src/components/common/FeaturesSection";
 
 
 export default function MainLayout({
@@ -11,6 +12,7 @@ export default function MainLayout({
     <>
       <Header />
       <main>{children}</main>
+      <FeaturesSection />
       <Footer />
     </>
   );

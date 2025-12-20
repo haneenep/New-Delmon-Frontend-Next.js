@@ -7,6 +7,7 @@ import { homeApi } from "../../service/homeApi";
 interface ApiProduct {
   id: number;
   product_name: string;
+  product_slug: string;
   product_thambnail: string;
   selling_price: string;
   discount_price: string | null;
@@ -22,8 +23,8 @@ export default function MoreProducts() {
     const fetchProducts = async () => {
       try {
         const response = await homeApi.getProducts();
-        if (response.success && response.data?.products?.data) {
-          const mappedProducts: Product[] = response.data.products.data
+        if (response.success && response.data) {
+          const mappedProducts: Product[] = response.data
             .slice(0, 4) // Show only 4 products
             .map((item: ApiProduct) => {
               const hasDiscount = item.discount_price !== null;
@@ -44,6 +45,7 @@ export default function MoreProducts() {
 
               return {
                 id: item.id,
+                slug: item.product_slug,
                 category: item.category?.category_name || "Uncategorized",
                 title: item.product_name,
                 price: `AED${finalPrice}`,

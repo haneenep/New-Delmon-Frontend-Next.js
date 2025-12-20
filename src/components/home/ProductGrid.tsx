@@ -17,8 +17,8 @@ const ProductsGrid = () => {
                 // Fetch only 12 products for the home page
                 const response: ProductResponse = await homeApi.getPaginatedProducts(1, 8);
 
-                if (response.success && response.data?.products?.data) {
-                    const mappedProducts: Product[] = response.data.products.data.map((item: ProductData) => {
+                if (response.success && response.data) {
+                    const mappedProducts: Product[] = response.data.map((item: ProductData) => {
                         let finalPrice = item.selling_price;
                         let oldPrice = undefined;
                         let badge = undefined;
@@ -37,6 +37,7 @@ const ProductsGrid = () => {
 
                         return {
                             id: item.id,
+                            slug: item.product_slug,
                             category: item.category?.category_name || "Uncategorized",
                             title: item.product_name,
                             price: `AED${finalPrice}`,

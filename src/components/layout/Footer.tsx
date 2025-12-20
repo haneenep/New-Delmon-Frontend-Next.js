@@ -15,7 +15,7 @@ const Footer = () => {
               <div className="mb-6">
                 <div className="w-44 h-16 rounded-md flex items-center justify-center">
                   <Image
-                  src="/delmon-logo-only.png"
+                  src="/delmon white.png"
                   alt="Delmon"
                   width={170}
                   height={60}

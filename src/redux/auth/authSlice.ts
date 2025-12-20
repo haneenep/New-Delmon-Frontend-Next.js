@@ -1,6 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { loginUser, registerUser } from "./authThunk";
 import { getAuthToken, removeAuthToken, setAuthToken } from "@/src/utils/authCookies";
+import { removeGuestId } from "@/src/utils/guestId";
 
 interface User {
   id: number;
@@ -32,18 +33,18 @@ const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-     hydrateAuth: (state) => {
-    const token = getAuthToken();
-    if (token) {
-      state.token = token;
-    }
-},
-  logout: (state) => {
-    state.user = null;
-    state.token = null;
-    state.message = null;
-    removeAuthToken();
-  },
+    hydrateAuth: (state) => {
+      const token = getAuthToken();
+      if (token) {
+        state.token = token;
+      }
+    },
+    logout: (state) => {
+      state.user = null;
+      state.token = null;
+      state.message = null;
+      removeAuthToken();
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -57,27 +58,29 @@ const authSlice = createSlice({
         state.token = action.payload.token;
         state.message = action.payload.message;
         setAuthToken(action.payload.token);
+        removeGuestId(); 
       })
       .addCase(registerUser.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       });
-      builder
-  .addCase(loginUser.pending, (state) => {
-    state.loading = true;
-    state.error = null;
-  })
-  .addCase(loginUser.fulfilled, (state, action) => {
-    state.loading = false;
-    state.user = action.payload.user;
-    state.token = action.payload.token;
-    state.message = action.payload.message;
-    setAuthToken(action.payload.token);
-  })
-  .addCase(loginUser.rejected, (state, action) => {
-    state.loading = false;
-    state.error = action.payload as string;
-  });
+    builder
+      .addCase(loginUser.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(loginUser.fulfilled, (state, action) => {
+        state.loading = false;
+        state.user = action.payload.user;
+        state.token = action.payload.token;
+        state.message = action.payload.message;
+        setAuthToken(action.payload.token);
+        removeGuestId();
+      })
+      .addCase(loginUser.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      });
 
   },
 });

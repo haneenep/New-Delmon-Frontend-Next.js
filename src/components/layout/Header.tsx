@@ -38,9 +38,8 @@ export default function Header() {
     const fetchMainCategories = async () => {
       try {
         const res = await homeApi.getCategories("main-category", 8);
-        console.log("response here:", res);
-        if (res.success && res.data?.data) {
-          setCategories(res.data.data);
+        if (res.success && res.data) {
+          setCategories(res.data);
         }
       } catch (error) {
         console.error("Error fetching categories:", error);
@@ -48,6 +47,9 @@ export default function Header() {
     };
     fetchMainCategories();
   }, []);
+
+  console.log("main categoryies:", categories);
+  
 
   return (
     <header className="w-full">
@@ -66,10 +68,10 @@ export default function Header() {
                 <Menu className="w-6 h-6 text-gray-700" />
               )}
             </button>
-            
+
             <div className="flex-shrink-0">
               <div className="w-32 h-10 bg-white rounded-md flex items-center justify-center">
-               <Image
+                <Image
                   src="/delmon-logo-only.png"
                   alt="Delmon"
                   width={170}
@@ -86,12 +88,12 @@ export default function Header() {
               >
                 <Search className="w-5 h-5 text-gray-700" />
               </button>
-              <button className="relative p-2">
+              <Link href="/cart" className="relative p-2">
                 <ShoppingCart className="w-5 h-5 text-gray-700" />
                 <span className="absolute top-0 right-0 bg-green-700 text-white text-[10px] font-medium rounded-full w-4 h-4 flex items-center justify-center">
                   0
                 </span>
-              </button>
+              </Link>
             </div>
           </div>
 
@@ -165,7 +167,7 @@ export default function Header() {
                 <User className="w-6 h-6" />
                 <span className="text-xs font-medium">Account</span>
               </Link>
-              <button className="flex flex-col items-center gap-1 text-gray-700 hover:text-green-700 relative min-w-[60px]">
+              <Link href="/cart" className="flex flex-col items-center gap-1 text-gray-700 hover:text-green-700 relative min-w-[60px]">
                 <div className="relative">
                   <ShoppingCart className="w-6 h-6" />
                   <span className="absolute -top-2 -right-2 bg-green-700 text-white text-[10px] font-medium rounded-full w-4 h-4 flex items-center justify-center">
@@ -173,7 +175,7 @@ export default function Header() {
                   </span>
                 </div>
                 <span className="text-xs font-medium">Cart</span>
-              </button>
+              </Link>
             </div>
           </div>
         </div>
@@ -222,7 +224,7 @@ export default function Header() {
             ) : (
               <div className="py-3 text-gray-500 text-sm">Loading categories...</div>
             )}
-            
+
             <div className="flex items-center gap-4 py-4 border-t border-gray-200 mt-2">
               <button className="flex items-center gap-2 text-gray-700">
                 <Scale className="w-5 h-5" />

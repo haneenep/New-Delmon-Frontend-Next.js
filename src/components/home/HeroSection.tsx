@@ -4,20 +4,20 @@ import { homeApi } from "@/src/service/homeApi";
 import React, { useEffect, useState } from "react";
 
 type Banner = {
-  id: number;
-  slider_title: string;
-  short_title: string;
-  slider_image: string;
+  id: number
+  banner_title: string
+  banner_url: string
+  banner_image: string
+  created_at: string
+  updated_at: string
 };
 
 const HeroSection = () => {
   const [banners, setBanners] = useState<Banner[]>([]);
-  const IMAGE_BASE = "https://palegoldenrod-wombat-569197.hostingersite.com/";
   useEffect(() => {
     async function getBanners() {
       try {
         const res = await homeApi.getBanners();
-        console.log(res, "home apii");
         setBanners(res.data);
       } catch (error) {
         console.error(error);
@@ -34,7 +34,7 @@ const HeroSection = () => {
       </section>
     );
   }
-
+  
   return (
     <section className="bg-gray-50 py-4 md:py-8">
       <div className="max-w-[1400px] mx-auto px-4 sm:px-6">
@@ -47,8 +47,8 @@ const HeroSection = () => {
                 className="relative rounded-lg overflow-hidden h-48 md:h-[280px]"
               >
                 <img
-                  src={`${IMAGE_BASE}${banner.slider_image}`}
-                  alt={banner.slider_title || "Banner"}
+                  src={`${process.env.NEXT_PUBLIC_IMAGE_BASE}/${banner.banner_image}`}
+                  alt={banner.banner_title || "Banner"}
                   className="w-full h-full object-cover"
                 />
               </div>
@@ -59,8 +59,8 @@ const HeroSection = () => {
           {banners[2] && (
             <div className="lg:col-span-8 relative rounded-lg overflow-hidden h-96 md:h-full min-h-[400px] lg:min-h-[600px]">
               <img
-                src={`${IMAGE_BASE}${banners[2].slider_image}`}
-                alt={banners[2].slider_title || "Special Offer"}
+                src={`${process.env.NEXT_PUBLIC_IMAGE_BASE}/${banners[2].banner_image}`}
+                alt={banners[2].banner_title || "Special Offer"}
                 className="w-full h-full object-cover"
               />
             </div>

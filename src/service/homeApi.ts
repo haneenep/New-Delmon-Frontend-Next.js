@@ -11,13 +11,18 @@ export const homeApi = {
     return res.data;
   },
 
-  async getPaginatedProducts(page: number = 1, limit: number = 12) {
-    const res = await api.get(`/products?page=${page}&per_page=${limit}`);
+  async getPaginatedProducts(page: number = 1, limit: number = 12, params: any = {}) {
+    const queryParams = new URLSearchParams({
+      page: page.toString(),
+      per_page: limit.toString(),
+      ...params
+    });
+    const res = await api.get(`/products?${queryParams.toString()}`);
     return res.data;
   },
 
-  async getProductById(id: number) {
-    const res = await api.get(`/product/${id}`);
+  async getProductBySlug(slug: string) {
+    const res = await api.get(`/product/${slug}`);
     return res.data;
   },
 
@@ -26,17 +31,21 @@ export const homeApi = {
     return res.data;
   },
   async getProductsByCategory(
-  categoryType: "main-category" | "category" | "sub-category",
-  id: number,
-  params?: {
-    per_page?: number;
-    simple?: boolean;
-  }
-) {
-  const res = await api.get(`/${categoryType}/${id}/products`, {
-    params,
-  });
-  return res.data;
-}
+    categoryType: "main-category" | "category" | "sub-category",
+    id: number,
+    params?: {
+      per_page?: number;
+      simple?: boolean;
+    }
+  ) {
+    const res = await api.get(`/${categoryType}/${id}/products`, {
+      params,
+    });
+    return res.data;
+  },
 
+  async getAllCategories(perPage: number = 10, page: number = 1) {
+    const res = await api.get(`/all-categories?per_page=${perPage}&page=${page}`);
+    return res.data;
+  }
 };

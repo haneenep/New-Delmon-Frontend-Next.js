@@ -3,9 +3,12 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
-import { Heart, ArrowRightLeft, Star, ChevronDown, ChevronUp } from "lucide-react";
+import { Heart, ArrowRightLeft, Star, ChevronDown, ChevronUp, Loader2 } from "lucide-react";
 import { homeApi } from "../../../../service/homeApi";
 import ProductCard, { Product as ProductCardType } from "../../../../components/common/ProductCard";
+import { useAppDispatch, useAppSelector } from "@/src/hooks/useRedux";
+import { addToCart } from "@/src/redux/cart/cartThunk";
+import { clearCartError, clearCartMessage } from "@/src/redux/cart/cartSlice";
 
 interface ProductImage {
     id: number;
@@ -166,7 +169,9 @@ const ProductAccordion = ({ title, content, isOpen, onClick }: { title: string, 
 
 export default function ProductDetailsPage() {
     const params = useParams();
-    const id = params.id as string;
+    const slug = params.slug as string;
+    const dispatch = useAppDispatch();
+    const { loading: cartLoading, error: cartError, message: cartMessage } = useAppSelector((state) => state.cart);
 
     const [product, setProduct] = useState<ProductData | null>(null);
     const [productImages, setProductImages] = useState<ProductImage[]>([]);
@@ -176,8 +181,8 @@ export default function ProductDetailsPage() {
     const [activeImage, setActiveImage] = useState("");
     const [openAccordion, setOpenAccordion] = useState<string | null>("description");
     const [selectedColor, setSelectedColor] = useState<string | null>(null);
+    const [selectedSize, setSelectedSize] = useState<string | null>(null);
 
-    // Mock colors mapping for demo purposes if product colors are just text
     const colorMap: Record<string, string> = {
         "red": "#EF4444",
         "blue": "#3B82F6",
@@ -195,11 +200,12 @@ export default function ProductDetailsPage() {
 
     useEffect(() => {
         const fetchProductDetails = async () => {
-            if (!id) return;
+            if (!slug) return;
 
             setLoading(true);
+            console.log("Fetching product with slug:", slug);
             try {
-                const response = await homeApi.getProductById(Number(id));
+                const response = await homeApi.getProductBySlug(slug);
 
                 if (response.success && response.data) {
                     setProduct(response.data.product);
@@ -209,10 +215,14 @@ export default function ProductDetailsPage() {
                         setProductImages(response.data.images);
                     }
 
-                    // Try to set initial color if available
                     if (response.data.product.product_color) {
                         const colors = response.data.product.product_color.split(',').map((c: string) => c.trim());
                         if (colors.length > 0) setSelectedColor(colors[0]);
+                    }
+
+                    if (response.data.product.product_size) {
+                        const sizes = response.data.product.product_size.split(',').map((s: string) => s.trim());
+                        if (sizes.length > 0) setSelectedSize(sizes[0]);
                     }
 
                     if (response.data.related && response.data.related.length > 0) {
@@ -234,6 +244,7 @@ export default function ProductDetailsPage() {
 
                             return {
                                 id: item.id,
+                                slug: item.product_slug,
                                 category: item.category_name || item.brand?.brand_name || "Uncategorized",
                                 title: item.product_name,
                                 price: `AED${finalPrice}`,
@@ -254,7 +265,46 @@ export default function ProductDetailsPage() {
 
         fetchProductDetails();
         setQuantity(1);
-    }, [id]);
+    }, [slug]);
+
+    useEffect(() => {
+        if (cartMessage) {
+            const timer = setTimeout(() => {
+                dispatch(clearCartMessage());
+            }, 3000);
+            return () => clearTimeout(timer);
+        }
+    }, [cartMessage, dispatch]);
+
+    useEffect(() => {
+        if (cartError) {
+            const timer = setTimeout(() => {
+                dispatch(clearCartError());
+            }, 5000);
+            return () => clearTimeout(timer);
+        }
+    }, [cartError, dispatch]);
+
+    const handleAddToCart = async () => {
+        if (!product) return;
+
+        const payload: any = {
+            qty: quantity,
+        };
+
+        if (selectedColor) {
+            payload.color = selectedColor;
+        }
+
+        if (selectedSize) {
+            payload.size = selectedSize;
+        }
+
+        await dispatch(addToCart({
+            productId: product.id,
+            payload: payload
+        }));
+    };
 
     if (loading) {
         return (
@@ -287,6 +337,7 @@ export default function ProductDetailsPage() {
     ];
 
     const colors = product.product_color ? product.product_color.split(',').map(c => c.trim()) : [];
+    const sizes = product.product_size ? product.product_size.split(',').map(s => s.trim()) : [];
 
     // Toggle accordion logic
     const toggleAccordion = (section: string) => {
@@ -312,6 +363,24 @@ export default function ProductDetailsPage() {
                 </div>
             </div>
 
+            {/* Success Message */}
+            {cartMessage && (
+                <div className="max-w-[1400px] mx-auto px-4 sm:px-6 mb-4">
+                    <div className="p-4 bg-green-100 border border-green-400 text-green-700 rounded-lg">
+                        {cartMessage}
+                    </div>
+                </div>
+            )}
+
+            {/* Error Message */}
+            {cartError && (
+                <div className="max-w-[1400px] mx-auto px-4 sm:px-6 mb-4">
+                    <div className="p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+                        {cartError}
+                    </div>
+                </div>
+            )}
+
             <main className="max-w-[1400px] mx-auto px-4 sm:px-6 mt-4">
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
                     {/* Left Column - Image Gallery */}
@@ -334,7 +403,7 @@ export default function ProductDetailsPage() {
                                 {allImages.map((img, index) => (
                                     <button
                                         key={img.id || index}
-                                        className={`w-20 h-24 flex-shrink-0 bg-[#F8F8F8] rounded-xl flex items-center justify-center p-2 border-2 transition-all ${activeImage === img.photo_name ? 'border-gray-400' : 'border-transparent hover:border-gray-200'
+                                        className={`w-20 h-24 shrink-0 bg-[#F8F8F8] rounded-xl flex items-center justify-center p-2 border-2 transition-all ${activeImage === img.photo_name ? 'border-gray-400' : 'border-transparent hover:border-gray-200'
                                             }`}
                                         onClick={() => setActiveImage(img.photo_name)}
                                     >
@@ -380,7 +449,7 @@ export default function ProductDetailsPage() {
 
                             {/* Color Selection */}
                             {colors.length > 0 && (
-                                <div className="mb-8">
+                                <div className="mb-6">
                                     <div className="flex items-center gap-3 mb-3">
                                         <span className="text-base text-gray-900 font-medium">Color :</span>
                                         <div className="flex items-center gap-2">
@@ -397,6 +466,29 @@ export default function ProductDetailsPage() {
                                                     />
                                                 );
                                             })}
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Size Selection */}
+                            {sizes.length > 0 && (
+                                <div className="mb-8">
+                                    <div className="flex items-center gap-3 mb-3">
+                                        <span className="text-base text-gray-900 font-medium">Size :</span>
+                                        <div className="flex items-center gap-2 flex-wrap">
+                                            {sizes.map((size) => (
+                                                <button
+                                                    key={size}
+                                                    onClick={() => setSelectedSize(size)}
+                                                    className={`px-4 py-2 rounded-lg border transition-all focus:outline-none ${selectedSize === size
+                                                            ? 'border-gray-900 bg-gray-900 text-white'
+                                                            : 'border-gray-300 bg-white text-gray-700 hover:border-gray-400'
+                                                        }`}
+                                                >
+                                                    {size}
+                                                </button>
+                                            ))}
                                         </div>
                                     </div>
                                 </div>
@@ -424,8 +516,19 @@ export default function ProductDetailsPage() {
                                     </div>
                                 </div>
 
-                                <button className="flex-1 bg-[#E31E24] hover:bg-red-700 text-white font-medium h-12 px-8 rounded-full transition-colors shadow-sm text-sm uppercase tracking-wide">
-                                    Add To Cart
+                                <button
+                                    onClick={handleAddToCart}
+                                    disabled={cartLoading}
+                                    className="flex-1 bg-green-700 hover:bg-green-800 text-white font-medium h-12 px-8 rounded-full transition-colors shadow-sm text-sm uppercase tracking-wide disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                                >
+                                    {cartLoading ? (
+                                        <>
+                                            <Loader2 className="w-4 h-4 animate-spin" />
+                                            Adding...
+                                        </>
+                                    ) : (
+                                        "Add To Cart"
+                                    )}
                                 </button>
 
                                 <div className="flex items-center gap-2">
