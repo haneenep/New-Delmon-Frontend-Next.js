@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState } from "react";
 import { Heart, Loader2, X } from "lucide-react";
 import Link from "next/link";
@@ -125,7 +127,7 @@ export default function ProductCard({
         <>
             <div className={`${backgroundColor} rounded-lg overflow-hidden w-full h-full flex flex-col relative`}>
                 {/* Image Section */}
-                <div className="relative bg-gray-100 aspect-square flex items-center justify-center p-8 flex-shrink-0">
+                <div className="relative bg-gray-100 aspect-square flex items-center justify-center p-8 shrink-0">
                     <Link href={`/product/${encodeURIComponent(product.slug)}`} className="block w-full h-full">
                         <img
                             src={product.image}
@@ -136,7 +138,7 @@ export default function ProductCard({
                 </div>
 
                 {/* Content Section  */}
-                <div className="p-4 flex flex-col flex-grow">
+                <div className="p-4 flex flex-col grow">
                     {/* Category */}
                     <p className="text-gray-500 text-xs mb-1">
                         {product.category}

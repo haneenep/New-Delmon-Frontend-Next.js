@@ -80,6 +80,17 @@ export const homeApi = {
   async getSlider() {
     const res = await api.get<SliderResponse>('/get-sliders');
     return res.data;
+  },
+
+  async getBrandProducts(slug: string, params?: { per_page?: number; page?: number; simple?: boolean }) {
+    const res = await api.get(`/brand-products/${slug}`, {
+      params: {
+        per_page: params?.per_page ?? 12,
+        page: params?.page ?? 1,
+        simple: params?.simple ?? true,
+      }
+    });
+    return res.data;
   }
 
 };

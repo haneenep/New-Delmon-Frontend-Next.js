@@ -13,6 +13,7 @@ import {
 import { clearCartError, clearCartMessage } from "@/src/redux/cart/cartSlice";
 import { useAppDispatch, useAppSelector } from "@/src/hooks/useRedux";
 import { RootState } from "@/src/redux/store";
+import Loading from "@/src/components/common/Loading";
 
 // Debounce hook
 function useDebounce<T extends (...args: any[]) => void>(
@@ -159,9 +160,7 @@ export default function ShoppingCart() {
                 )}
 
                 {loading && !cart ? (
-                    <div className="flex justify-center items-center py-20">
-                        <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
-                    </div>
+                    <Loading className="py-20" />
                 ) : cartItems.length === 0 ? (
                     <div className="text-center py-20">
                         <p className="text-xl text-gray-600 mb-4">Your cart is empty</p>

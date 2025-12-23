@@ -6,6 +6,7 @@ import { AllCategoriesResponse } from "@/src/types/category.types";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import React, { useState, useEffect } from "react";
+import Loading from "@/src/components/common/Loading";
 
 export default function CategoriesPage() {
     const [categoriesData, setCategoriesData] =
@@ -50,11 +51,7 @@ export default function CategoriesPage() {
     };
 
     if (loading) {
-        return (
-            <div className="flex items-center justify-center min-h-screen bg-white">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-700"></div>
-            </div>
-        );
+        return <Loading />;
     }
 
     if (!categoriesData) {
@@ -72,7 +69,7 @@ export default function CategoriesPage() {
             <div className="max-w-7xl mx-auto px-4 py-8">
                 <div className="flex flex-col lg:flex-row gap-6">
                     {/* Sidebar - Hidden on mobile, efficient on desktop */}
-                    <aside className="hidden lg:block w-64 flex-shrink-0">
+                    <aside className="hidden lg:block w-64 shrink-0">
                         <div className="bg-white rounded-lg shadow-sm overflow-hidden sticky top-4">
                             {/* Main Categories Header */}
                             <div className="bg-green-700 text-white p-4">
@@ -99,8 +96,8 @@ export default function CategoriesPage() {
                                             </span>
                                             <ChevronDown
                                                 className={`w-4 h-4 text-gray-400 transition-transform ${expandedCategories[mainCategory.id]
-                                                        ? "rotate-180"
-                                                        : ""
+                                                    ? "rotate-180"
+                                                    : ""
                                                     }`}
                                             />
                                         </button>
@@ -121,8 +118,8 @@ export default function CategoriesPage() {
                                                             {category.sub_categories.length > 0 && (
                                                                 <ChevronRight
                                                                     className={`w-3 h-3 text-gray-400 transition-transform ${expandedSubCategories[category.id]
-                                                                            ? "rotate-90"
-                                                                            : ""
+                                                                        ? "rotate-90"
+                                                                        : ""
                                                                         }`}
                                                                 />
                                                             )}

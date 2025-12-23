@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import Link from "next/link";
 import { Heart, ArrowRightLeft, Star, ChevronDown, ChevronUp, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import Loading from "../../../../components/common/Loading";
 import { homeApi } from "../../../../service/homeApi";
 import ProductCard, { Product as ProductCardType } from "../../../../components/common/ProductCard";
 import { useAppDispatch, useAppSelector } from "@/src/hooks/useRedux";
@@ -315,11 +316,7 @@ export default function ProductDetailsPage() {
     };
 
     if (loading) {
-        return (
-            <div className="flex justify-center items-center min-h-screen bg-white">
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#E31E24]"></div>
-            </div>
-        );
+        return <Loading />;
     }
 
     if (!product) {

@@ -5,6 +5,7 @@ import ProductCard, { Product } from "../common/ProductCard";
 import { homeApi } from "../../service/homeApi";
 import { ProductData, ProductResponse } from "../../types/product.types";
 import Pagination from "../common/Pagination";
+import Loading from "../common/Loading";
 
 const PaginatedProducts = () => {
     const [products, setProducts] = useState<Product[]>([]);
@@ -77,11 +78,7 @@ const PaginatedProducts = () => {
     };
 
     if (loading) {
-        return (
-            <div className="flex justify-center items-center h-64">
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#0d6838]"></div>
-            </div>
-        );
+        return <Loading className="h-64" />;
     }
 
     return (

@@ -5,24 +5,39 @@ import CategoryPills from "../../components/home/CategoryPills";
 import HeroSection from "../../components/home/HeroSection";
 import MoreProducts from "../../components/home/MoreProduct";
 import PromoBanner from "../../components/home/PromoBanner";
+import { FadeIn } from "../../components/common";
 
 export default function Home() {
   return (
-    <div className="w-full bg-white">
+    <div className="w-full bg-white overflow-hidden">
       {/* Hero Section */}
-      <HeroSection />
+      <FadeIn>
+        <HeroSection />
+      </FadeIn>
       {/* Categories */}
-      <BookCategories />
+      <FadeIn delay={0.2}>
+        <BookCategories />
+      </FadeIn>
       {/* Products Grid */}
-      <ProductsGrid />
+      <FadeIn delay={0.3}>
+        <ProductsGrid />
+      </FadeIn>
       {/* Promo Banner */}
-      <PromoBanner />
+      <FadeIn delay={0.4}>
+        <PromoBanner />
+      </FadeIn>
       {/* Brands */}
-      <BrandsSection />
+      <FadeIn delay={0.5}>
+        <BrandsSection />
+      </FadeIn>
       {/* More Products */}
-      <MoreProducts />
+      <FadeIn delay={0.6}>
+        <MoreProducts />
+      </FadeIn>
       {/* Category Pills */}
-      <CategoryPills />
+      <FadeIn delay={0.7}>
+        <CategoryPills />
+      </FadeIn>
     </div>
   );
 }

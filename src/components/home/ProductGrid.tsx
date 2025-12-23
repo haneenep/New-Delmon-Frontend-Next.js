@@ -6,6 +6,7 @@ import ProductCard, { Product } from "../common/ProductCard";
 import { homeApi } from "../../service/homeApi";
 import { ProductData, ProductResponse } from "../../types/product.types";
 import { ArrowRight } from "lucide-react";
+import Loading from "../common/Loading";
 
 const ProductsGrid = () => {
     const [products, setProducts] = useState<Product[]>([]);
@@ -66,11 +67,7 @@ const ProductsGrid = () => {
     if (loading) {
         return (
             <section className="py-6 md:py-12 bg-gray-50">
-                <div className="max-w-[1400px] mx-auto px-4 sm:px-6">
-                    <div className="flex justify-center items-center h-64">
-                        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#0d6838]"></div>
-                    </div>
-                </div>
+                <Loading className="h-64" />
             </section>
         );
     }
