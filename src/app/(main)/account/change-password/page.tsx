@@ -13,9 +13,9 @@ export default function ChangePasswordPage() {
   const { loading, error, successMessage } = useSelector((state: RootState) => state.user);
 
   const [formData, setFormData] = useState({
-    current_password: "",
-    password: "",
-    password_confirmation: ""
+    oldpassword: "",
+    newpassword: "",
+    newpassword_confirmation: ""
   });
 
   // Clear messages on unmount
@@ -32,6 +32,11 @@ export default function ChangePasswordPage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     dispatch(updateUserPassword(formData));
+    setFormData({
+      oldpassword: "",
+      newpassword: "",
+      newpassword_confirmation: ""
+    });
   };
 
   return (
@@ -53,31 +58,31 @@ export default function ChangePasswordPage() {
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-4 text-black">
         <FormInput
-          name="current_password"
+          name="oldpassword"
           type="password"
           label="Current Password"
           placeholder="Enter current password"
-          value={formData.current_password}
+          value={formData.oldpassword}
           onChange={handleChange}
           required
         />
         <FormInput
-          name="password"
+          name="newpassword"
           type="password"
           label="New Password"
           placeholder="Enter new password"
-          value={formData.password}
+          value={formData.newpassword}
           onChange={handleChange}
           required
         />
         <FormInput
-          name="password_confirmation"
+          name="newpassword_confirmation"
           type="password"
           label="Confirm Password"
           placeholder="Confirm new password"
-          value={formData.password_confirmation}
+          value={formData.newpassword_confirmation}
           onChange={handleChange}
           required
         />

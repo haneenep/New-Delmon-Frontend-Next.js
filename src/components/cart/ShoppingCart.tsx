@@ -152,13 +152,6 @@ export default function ShoppingCart() {
                     </div>
                 )}
 
-                {/* Success Message */}
-                {message && (
-                    <div className="mb-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded-lg">
-                        {message}
-                    </div>
-                )}
-
                 {loading && !cart ? (
                     <Loading className="py-20" />
                 ) : cartItems.length === 0 ? (

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { Button } from "@/src/components/common";
+import Loading from "@/src/components/common/Loading";
 import { Trash2, Loader2 } from "lucide-react";
 import {
     fetchWishlist,
@@ -12,10 +13,11 @@ import { addToCart } from "@/src/redux/cart/cartThunk";
 import { clearWishlistError, clearWishlistMessage } from "@/src/redux/wishlist/wishlistSlice";
 import { useAppDispatch, useAppSelector } from "@/src/hooks/useRedux";
 import { RootState } from "@/src/redux/store";
+import ProtectedRoute from "@/src/components/auth/ProtectedRoute";
 
-export default function WishlistPage() {
+function WishlistContent() {
     const dispatch = useAppDispatch();
-    const { wishlist, loading, error, message } = useAppSelector((state: RootState) => state.wishlist);
+    const { wishlist, loading, loadingProductId, error, message } = useAppSelector((state: RootState) => state.wishlist);
     const [addingToCart, setAddingToCart] = useState<number | null>(null);
 
     useEffect(() => {
@@ -41,6 +43,7 @@ export default function WishlistPage() {
     }, [error, dispatch]);
 
     const handleRemoveItem = async (productId: number) => {
+        if (loadingProductId === productId) return;
         await dispatch(removeFromWishlist(productId));
     };
 
@@ -50,7 +53,7 @@ export default function WishlistPage() {
         setAddingToCart(null);
     };
 
-    const wishlistItems = wishlist?.wishlist_items || [];
+    const wishlistItems = wishlist || [];
 
     return (
         <div className="min-h-screen bg-gray-50 py-8 text-black">
@@ -74,17 +77,8 @@ export default function WishlistPage() {
                     </div>
                 )}
 
-                {/* Success Message */}
-                {message && (
-                    <div className="mb-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded-lg">
-                        {message}
-                    </div>
-                )}
-
                 {loading && !wishlist ? (
-                    <div className="flex justify-center items-center py-20">
-                        <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
-                    </div>
+                    <Loading className="py-20" />
                 ) : wishlistItems.length === 0 ? (
                     <div className="text-center py-20">
                         <p className="text-xl text-gray-600 mb-4">Your wishlist is empty</p>
@@ -100,9 +94,8 @@ export default function WishlistPage() {
                             <div className="grid grid-cols-12 gap-4 px-6 py-4 bg-gray-100 border-b border-gray-200 font-semibold text-gray-700">
                                 <div className="col-span-4">Product Name</div>
                                 <div className="col-span-2 text-center">Quantity</div>
-                                <div className="col-span-2 text-center">Stock Status</div>
                                 <div className="col-span-2 text-center">Total</div>
-                                <div className="col-span-2 text-center">Action</div>
+                                <div className="col-span-4 text-center">Action</div>
                             </div>
 
                             {/* Wishlist Items */}
@@ -116,8 +109,8 @@ export default function WishlistPage() {
                                         <div className="col-span-4 flex items-center gap-4">
                                             <div className="w-20 h-20 bg-gray-100 rounded-lg border border-gray-200 flex items-center justify-center overflow-hidden relative shrink-0">
                                                 <Image
-                                                    src={`${process.env.NEXT_PUBLIC_IMAGE_BASE}/${item.img}`}
-                                                    alt={item.name}
+                                                    src={`${process.env.NEXT_PUBLIC_IMAGE_BASE}/${item.product.product_thambnail}`}
+                                                    alt={item.product.product_name}
                                                     width={80}
                                                     height={80}
                                                     className="object-contain"
@@ -125,7 +118,7 @@ export default function WishlistPage() {
                                             </div>
                                             <div>
                                                 <h3 className="font-medium text-gray-900 text-sm line-clamp-2">
-                                                    {item.name}
+                                                    {item.product.product_name}
                                                 </h3>
                                             </div>
                                         </div>
@@ -151,38 +144,30 @@ export default function WishlistPage() {
                                             </div>
                                         </div>
 
-                                        {/* Stock Status */}
-                                        <div className="col-span-2 text-center">
-                                            <span
-                                                className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${item.stock_status === "Instock"
-                                                        ? "bg-green-100 text-green-800"
-                                                        : "bg-red-100 text-red-800"
-                                                    }`}
-                                            >
-                                                {item.stock_status}
-                                            </span>
-                                        </div>
-
                                         {/* Total Price */}
                                         <div className="col-span-2 text-center font-semibold text-gray-900">
-                                            AED {item.price.toFixed(2)}
+                                            AED {item.product.selling_price}
                                         </div>
 
                                         {/* Action Buttons */}
-                                        <div className="col-span-2 flex items-center justify-center gap-2">
+                                        <div className="col-span-4 flex items-center justify-center gap-2">
                                             <button
                                                 onClick={() => handleRemoveItem(item.product_id)}
                                                 className="p-2 hover:bg-red-50 hover:text-red-500 rounded-lg transition-colors disabled:opacity-50 text-gray-400"
                                                 aria-label="Remove item"
-                                                disabled={loading}
+                                                disabled={loadingProductId === item.product_id}
                                             >
-                                                <Trash2 className="w-4 h-4" />
+                                                {loadingProductId === item.product_id ? (
+                                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                                ) : (
+                                                    <Trash2 className="w-4 h-4" />
+                                                )}
                                             </button>
                                             <Button
                                                 variant="primary"
                                                 className="px-4 py-2 text-sm rounded-lg bg-green-600 hover:bg-green-700"
                                                 onClick={() => handleAddToCart(item.product_id)}
-                                                disabled={addingToCart === item.product_id || item.stock_status !== "Instock"}
+                                                disabled={addingToCart === item.product_id}
                                             >
                                                 {addingToCart === item.product_id ? (
                                                     <Loader2 className="w-4 h-4 animate-spin" />
@@ -215,5 +200,13 @@ export default function WishlistPage() {
                 )}
             </div>
         </div>
+    );
+}
+
+export default function WishlistPage() {
+    return (
+        <ProtectedRoute>
+            <WishlistContent />
+        </ProtectedRoute>
     );
 }

@@ -18,8 +18,8 @@ export default function WishlistButton({ productId, className = "", showText = f
     const [isInWishlist, setIsInWishlist] = useState(false);
 
     useEffect(() => {
-        if (wishlist?.wishlist_items) {
-            const inWishlist = wishlist.wishlist_items.some(
+        if (wishlist) {
+            const inWishlist = wishlist.some(
                 (item) => item.product_id === productId
             );
             setIsInWishlist(inWishlist);

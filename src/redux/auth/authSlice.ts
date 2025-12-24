@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { loginUser, registerUser } from "./authThunk";
+import { loginUser, registerUser, resendVerificationEmail } from "./authThunk";
 import { getAuthToken, removeAuthToken, setAuthToken } from "@/src/utils/authCookies";
 import { removeGuestId } from "@/src/utils/guestId";
 
@@ -58,7 +58,7 @@ const authSlice = createSlice({
         state.token = action.payload.token;
         state.message = action.payload.message;
         setAuthToken(action.payload.token);
-        removeGuestId(); 
+        removeGuestId();
       })
       .addCase(registerUser.rejected, (state, action) => {
         state.loading = false;
@@ -78,6 +78,19 @@ const authSlice = createSlice({
         removeGuestId();
       })
       .addCase(loginUser.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      });
+    builder
+      .addCase(resendVerificationEmail.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(resendVerificationEmail.fulfilled, (state, action) => {
+        state.loading = false;
+        state.message = action.payload.message || "Verification email sent successfully";
+      })
+      .addCase(resendVerificationEmail.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       });

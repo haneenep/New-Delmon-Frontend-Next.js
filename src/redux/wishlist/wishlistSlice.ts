@@ -4,11 +4,12 @@ import {
     addToWishlist,
     removeFromWishlist,
 } from "./wishlistThunk";
-import { Wishlist } from "@/src/types/wishlist.types";
+import { WishlistGetData } from "@/src/types/wishlist.types";
 
 interface WishlistState {
-    wishlist: Wishlist | null;
+    wishlist: WishlistGetData[] | null;
     loading: boolean;
+    loadingProductId: number | null;
     error: string | null;
     message: string | null;
 }
@@ -16,6 +17,7 @@ interface WishlistState {
 const initialState: WishlistState = {
     wishlist: null,
     loading: false,
+    loadingProductId: null,
     error: null,
     message: null,
 };
@@ -53,38 +55,37 @@ const wishlistSlice = createSlice({
             })
 
             // Add to Wishlist
-            .addCase(addToWishlist.pending, (state) => {
-                state.loading = true;
+            .addCase(addToWishlist.pending, (state, action) => {
+                state.loadingProductId = action.meta.arg;
                 state.error = null;
             })
             .addCase(addToWishlist.fulfilled, (state, action) => {
-                state.loading = false;
+                state.loadingProductId = null;
                 state.wishlist = action.payload;
                 state.message = "Item added to wishlist successfully";
             })
             .addCase(addToWishlist.rejected, (state, action) => {
-                state.loading = false;
+                state.loadingProductId = null;
                 state.error = action.payload as string;
             })
 
             // Remove from Wishlist
-            .addCase(removeFromWishlist.pending, (state) => {
-                state.loading = true;
+            .addCase(removeFromWishlist.pending, (state, action) => {
+                state.loadingProductId = action.meta.arg;
                 state.error = null;
             })
             .addCase(removeFromWishlist.fulfilled, (state, action) => {
-                state.loading = false;
+                state.loadingProductId = null;
                 state.message = "Item removed from wishlist";
                 if (state.wishlist) {
                     const productId = action.payload;
-                    state.wishlist.wishlist_items = state.wishlist.wishlist_items.filter(
+                    state.wishlist = state.wishlist.filter(
                         (item) => item.product_id !== productId
                     );
-                    state.wishlist.wishlist_count = state.wishlist.wishlist_items.length;
                 }
             })
             .addCase(removeFromWishlist.rejected, (state, action) => {
-                state.loading = false;
+                state.loadingProductId = null;
                 state.error = action.payload as string;
             });
     },

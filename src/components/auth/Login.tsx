@@ -39,7 +39,17 @@ export default function LoginPage() {
   useEffect(() => {
     if (token) {
       toast.success("Login Successful!");
-      router.push("/");
+
+      const searchParams = new URLSearchParams(window.location.search);
+      const redirectPath = searchParams.get("redirect");
+
+      const storedRedirect = sessionStorage.getItem("redirectAfterLogin");
+
+      const destination = redirectPath || storedRedirect || "/";
+
+      sessionStorage.removeItem("redirectAfterLogin");
+
+      router.push(destination);
     }
   }, [token, router]);
 
@@ -48,6 +58,18 @@ export default function LoginPage() {
       toast.error(error);
     }
   }, [error]);
+
+  const [registerUrl, setRegisterUrl] = useState("/register");
+
+  useEffect(() => {
+    const searchParams = new URLSearchParams(window.location.search);
+    const redirect = searchParams.get("redirect") || sessionStorage.getItem("redirectAfterLogin");
+    if (redirect) {
+      setRegisterUrl(`/register?redirect=${encodeURIComponent(redirect)}`);
+    } else {
+      setRegisterUrl("/register");
+    }
+  }, []);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-white px-4">
@@ -97,7 +119,7 @@ export default function LoginPage() {
                 </h1>
                 <p className="text-sm mt-2 text-black">
                   <Link
-                    href="/register"
+                    href={registerUrl}
                     className="hover:underline"
                   >
                     Create a New Account

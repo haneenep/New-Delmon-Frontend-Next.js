@@ -1,19 +1,25 @@
-export interface UserProfile {
+export interface GetProfileResponse {
+  success: boolean
+  message: string
+  data: UserData
+}
+
+export interface UserData {
   id: number
   name: string
-  username: string
+  username: any
   email: string
   email_verified_at: string
-  photo: string
+  photo: any
   phone: string
-  address: string
-  vendor_join: string
-  vendor_short_info: string
+  address: any
+  vendor_join: any
+  vendor_short_info: any
   role: string
   status: string
-  last_seen: string
-  google_id: string
-  facebook_id: string
+  last_seen: any
+  google_id: any
+  facebook_id: any
   created_at: string
   updated_at: string
 }

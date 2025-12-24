@@ -11,6 +11,9 @@ import ProductCard, { Product as ProductCardType } from "../../../../components/
 import { useAppDispatch, useAppSelector } from "@/src/hooks/useRedux";
 import { addToCart } from "@/src/redux/cart/cartThunk";
 import { clearCartError, clearCartMessage } from "@/src/redux/cart/cartSlice";
+import { addToWishlist, removeFromWishlist } from "@/src/redux/wishlist/wishlistThunk";
+import { clearWishlistError, clearWishlistMessage } from "@/src/redux/wishlist/wishlistSlice";
+import { ProductData, RelatedProduct } from "@/src/types/product.types";
 
 interface ProductImage {
     id: number;
@@ -20,131 +23,6 @@ interface ProductImage {
     updated_at: string | null;
 }
 
-interface Brand {
-    id: number;
-    brand_name: string;
-    brand_slug: string;
-    brand_image: string;
-    created_at: string;
-    updated_at: string;
-    meta_title: string;
-    meta_description: string;
-    meta_keywords: string;
-}
-
-interface Category {
-    id: number;
-    main_category_id: number;
-    category_name: string;
-    category_slug: string;
-    category_image: string;
-    created_at: string;
-    updated_at: string;
-    meta_title: string;
-    meta_description: string;
-    meta_keywords: string;
-}
-
-interface ProductData {
-    id: number;
-    brand_id: number;
-    brand_name: string | null;
-    main_category_id: number;
-    main_category_name: string | null;
-    category_id: number;
-    category_name: string | null;
-    subcategory_id: number;
-    subcategory_name: string | null;
-    product_name: string;
-    product_slug: string;
-    product_code: string;
-    product_qty: string;
-    product_tags: string;
-    product_size: string;
-    product_color: string;
-    packing: string;
-    height: string | null;
-    width: string | null;
-    length: string | null;
-    weight: string | null;
-    origin: string;
-    alt: string;
-    selling_price: string;
-    contract_price: string | null;
-    discount_price: string | null;
-    specification: string;
-    short_description: string;
-    long_description: string;
-    product_thambnail: string;
-    vendor_id: number | null;
-    hot_deals: number | null;
-    featured: number | null;
-    special_offer: number | null;
-    special_deals: number | null;
-    new_product: number;
-    category_skip_0: number | null;
-    category_skip_4: number | null;
-    category_skip_7: number | null;
-    meta_title: string | null;
-    meta_keyword: string;
-    meta_description: string | null;
-    wholesale: number;
-    status: number;
-    created_at: string;
-    updated_at: string;
-    brand: Brand;
-    category: Category;
-}
-
-interface RelatedProduct {
-    id: number;
-    brand_id: number;
-    brand_name?: string;
-    main_category_id: number;
-    main_category_name: string | null;
-    category_id: number;
-    category_name?: string;
-    subcategory_id: number;
-    subcategory_name?: string;
-    product_name: string;
-    product_slug: string;
-    product_code: string;
-    product_qty: string;
-    product_tags?: string;
-    product_size?: string;
-    product_color?: string;
-    packing: string;
-    height?: string;
-    width?: string;
-    length?: string;
-    weight?: string;
-    origin: string;
-    alt: string;
-    selling_price: string;
-    contract_price: string | null;
-    discount_price: string | null;
-    specification: string;
-    short_description?: string;
-    long_description: string;
-    product_thambnail: string;
-    vendor_id: number | null;
-    hot_deals: number | null;
-    featured: number | null;
-    special_offer?: number;
-    special_deals: number | null;
-    new_product?: number;
-    category_skip_0: number | null;
-    category_skip_4: number | null;
-    category_skip_7: number | null;
-    meta_title?: string;
-    meta_keyword: string;
-    meta_description?: string;
-    wholesale: number;
-    status: number;
-    created_at: string;
-    updated_at: string;
-    brand: Brand;
-}
 
 const ProductAccordion = ({ title, content, isOpen, onClick }: { title: string, content: string | React.ReactNode, isOpen: boolean, onClick: () => void }) => {
     return (
@@ -174,6 +52,8 @@ export default function ProductDetailsPage() {
     const slug = params.slug as string;
     const dispatch = useAppDispatch();
     const { loading: cartLoading, error: cartError, message: cartMessage } = useAppSelector((state) => state.cart);
+    const { token } = useAppSelector((state) => state.auth);
+    const { wishlist, loadingProductId, error: wishlistError, message: wishlistMessage } = useAppSelector((state) => state.wishlist);
 
     const [product, setProduct] = useState<ProductData | null>(null);
     const [productImages, setProductImages] = useState<ProductImage[]>([]);
@@ -184,6 +64,28 @@ export default function ProductDetailsPage() {
     const [openAccordion, setOpenAccordion] = useState<string | null>("description");
     const [selectedColor, setSelectedColor] = useState<string | null>(null);
     const [selectedSize, setSelectedSize] = useState<string | null>(null);
+
+    const isInWishlist = wishlist?.some(item => item.product_id === product?.id);
+    const isWishlistLoading = loadingProductId === product?.id;
+
+    const handleWishlistToggle = async () => {
+        if (!token) {
+            toast.error("Please login to manage your wishlist");
+            return;
+        }
+
+        if (!product) return;
+
+        try {
+            if (isInWishlist) {
+                await dispatch(removeFromWishlist(product.id)).unwrap();
+            } else {
+                await dispatch(addToWishlist(product.id)).unwrap();
+            }
+        } catch (error: any) {
+            console.error("Wishlist operation failed", error);
+        }
+    };
 
     const colorMap: Record<string, string> = {
         "red": "#EF4444",
@@ -293,6 +195,26 @@ export default function ProductDetailsPage() {
             return () => clearTimeout(timer);
         }
     }, [cartError, dispatch]);
+
+    useEffect(() => {
+        if (wishlistMessage) {
+            toast.success(wishlistMessage);
+            const timer = setTimeout(() => {
+                dispatch(clearWishlistMessage());
+            }, 3000);
+            return () => clearTimeout(timer);
+        }
+    }, [wishlistMessage, dispatch]);
+
+    useEffect(() => {
+        if (wishlistError) {
+            toast.error(wishlistError);
+            const timer = setTimeout(() => {
+                dispatch(clearWishlistError());
+            }, 5000);
+            return () => clearTimeout(timer);
+        }
+    }, [wishlistError, dispatch]);
 
     const handleAddToCart = async () => {
         if (!product) return;
@@ -520,8 +442,19 @@ export default function ProductDetailsPage() {
                                 </button>
 
                                 <div className="flex items-center gap-2">
-                                    <button className="w-12 h-12 rounded-xl bg-[#E8F3ED] flex items-center justify-center text-gray-600 hover:text-[#E31E24] transition-colors border border-[#d6eadd]">
-                                        <Heart className="w-5 h-5" />
+                                    <button
+                                        onClick={handleWishlistToggle}
+                                        disabled={isWishlistLoading}
+                                        className={`w-12 h-12 rounded-xl flex items-center justify-center transition-colors border ${isInWishlist
+                                            ? 'bg-red-50 text-red-500 border-red-200'
+                                            : 'bg-[#E8F3ED] text-gray-600 hover:text-green-700 border-[#d6eadd]'
+                                            }`}
+                                    >
+                                        {isWishlistLoading ? (
+                                            <Loader2 className="w-5 h-5 animate-spin" />
+                                        ) : (
+                                            <Heart className={`w-5 h-5 ${isInWishlist ? 'fill-current' : ''}`} />
+                                        )}
                                     </button>
                                     <button className="w-12 h-12 rounded-xl bg-[#E8F3ED] flex items-center justify-center text-gray-600 hover:text-[#E31E24] transition-colors border border-[#d6eadd]">
                                         <ArrowRightLeft className="w-5 h-5" />

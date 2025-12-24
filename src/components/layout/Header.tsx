@@ -16,6 +16,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { homeApi } from "@/src/service/homeApi";
+import { useAppSelector } from "@/src/hooks/useRedux";
+import { RootState } from "@/src/redux/store";
 
 interface Category {
   id: number;
@@ -33,6 +35,8 @@ export default function Header() {
   const [searchOpen, setSearchOpen] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
   const router = useRouter();
+  const { wishlist } = useAppSelector((state: RootState) => state.wishlist);
+  const { cart } = useAppSelector((state: RootState) => state.cart);
 
   useEffect(() => {
     const fetchMainCategories = async () => {
@@ -49,7 +53,7 @@ export default function Header() {
   }, []);
 
   console.log("main categoryies:", categories);
-  
+
 
   return (
     <header className="w-full">
@@ -91,7 +95,7 @@ export default function Header() {
               <Link href="/cart" className="relative p-2">
                 <ShoppingCart className="w-5 h-5 text-gray-700" />
                 <span className="absolute top-0 right-0 bg-green-700 text-white text-[10px] font-medium rounded-full w-4 h-4 flex items-center justify-center">
-                  0
+                  {cart?.cart_count || 0}
                 </span>
               </Link>
             </div>
@@ -116,7 +120,7 @@ export default function Header() {
           {/* Desktop Header */}
           <div className="hidden lg:flex items-center justify-between py-4">
             <div className="flex-shrink-0">
-              <div onClick={() => router.push('/')} className="w-48 h-14 bg-white rounded-md flex items-center justify-center border border-gray-200 cursor-pointer">
+              <div onClick={() => router.push('/')} className="w-48 h-14 bg-white rounded-md flex items-center justify-center cursor-pointer">
                 <Image
                   src="/delmon-logo-only.png"
                   alt="Delmon"
@@ -159,10 +163,17 @@ export default function Header() {
                 <Scale className="w-6 h-6" />
                 <span className="text-xs font-medium">Compare</span>
               </button>
-              <button className="flex flex-col items-center gap-1 text-gray-700 hover:text-green-700 min-w-[60px]">
-                <Heart className="w-6 h-6" />
+              <Link href="/wishlist" className="flex flex-col items-center gap-1 text-gray-700 hover:text-green-700 min-w-[60px] relative">
+                <div className="relative">
+                  <Heart className="w-6 h-6" />
+                  {wishlist && wishlist.length > 0 && (
+                    <span className="absolute -top-2 -right-2 bg-green-700 text-white text-[10px] font-medium rounded-full w-4 h-4 flex items-center justify-center animate-in fade-in zoom-in duration-300">
+                      {wishlist.length}
+                    </span>
+                  )}
+                </div>
                 <span className="text-xs font-medium">Wishlist</span>
-              </button>
+              </Link>
               <Link href="/account" className="flex flex-col items-center gap-1 text-gray-700 hover:text-green-700 min-w-[60px]">
                 <User className="w-6 h-6" />
                 <span className="text-xs font-medium">Account</span>
@@ -171,7 +182,7 @@ export default function Header() {
                 <div className="relative">
                   <ShoppingCart className="w-6 h-6" />
                   <span className="absolute -top-2 -right-2 bg-green-700 text-white text-[10px] font-medium rounded-full w-4 h-4 flex items-center justify-center">
-                    0
+                    {cart?.cart_count || 0}
                   </span>
                 </div>
                 <span className="text-xs font-medium">Cart</span>

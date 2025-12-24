@@ -25,6 +25,15 @@ export default function RegisterPage() {
     });
 
     const [agreeTerms, setAgreeTerms] = useState(false);
+    const [loginUrl, setLoginUrl] = useState("/login");
+
+    useEffect(() => {
+        const searchParams = new URLSearchParams(window.location.search);
+        const redirect = searchParams.get("redirect") || sessionStorage.getItem("redirectAfterLogin");
+        if (redirect) {
+            setLoginUrl(`/login?redirect=${encodeURIComponent(redirect)}`);
+        }
+    }, []);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setForm({ ...form, [e.target.name]: e.target.value });
@@ -32,17 +41,29 @@ export default function RegisterPage() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        await dispatch(registerUser(form));
+        const result = await dispatch(registerUser(form));
+
+        if (registerUser.fulfilled.match(result)) {
+            toast.success("Registration successful! Please check your email to verify your account.");
+
+            const searchParams = new URLSearchParams(window.location.search);
+            const redirect = searchParams.get("redirect") || sessionStorage.getItem("redirectAfterLogin");
+            let verifyUrl = "/verify-email/0/0";
+            if (redirect) {
+                verifyUrl += `?redirect=${encodeURIComponent(redirect)}`;
+            }
+
+            setTimeout(() => {
+                window.location.href = verifyUrl;
+            }, 2000);
+        }
     };
 
     useEffect(() => {
-        if (message) {
-            toast.success(message);
-        }
         if (error) {
             toast.error(error);
         }
-    }, [message, error]);
+    }, [error]);
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-white px-4 text-black">
@@ -74,7 +95,7 @@ export default function RegisterPage() {
                                 <p className="text-sm text-gray-500 mt-2">
                                     Already Have an Account ?{" "}
                                     <Link
-                                        href="/login"
+                                        href={loginUrl}
                                         className="font-medium text-gray-800 hover:text-green-700"
                                     >
                                         Login

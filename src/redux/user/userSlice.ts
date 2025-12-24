@@ -1,9 +1,9 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { fetchUserProfile, updateUserPassword } from "./userThunk";
-import { UserProfile } from "@/src/types/user.types";
+import { UserData } from "@/src/types/user.types";
 
 interface UserState {
-    profile: UserProfile | null;
+    profile: UserData | null;
     loading: boolean;
     error: string | null;
     successMessage: string | null;

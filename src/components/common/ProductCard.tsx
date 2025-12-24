@@ -5,8 +5,10 @@ import { Heart, Loader2, X } from "lucide-react";
 import Link from "next/link";
 import { useDispatch } from "react-redux";
 import { addToCart } from "@/src/redux/cart/cartThunk";
-import { AppDispatch } from "@/src/redux/store";
+import { AppDispatch, RootState } from "@/src/redux/store";
 import { toast } from "sonner";
+import { useAppDispatch, useAppSelector } from "@/src/hooks/useRedux";
+import { addToWishlist, removeFromWishlist } from "@/src/redux/wishlist/wishlistThunk";
 
 
 export interface Product {
@@ -52,11 +54,39 @@ export default function ProductCard({
     showBadge = true,
     backgroundColor = "bg-white"
 }: ProductCardProps) {
-    const dispatch = useDispatch<AppDispatch>();
+    const dispatch = useAppDispatch();
+    const { token } = useAppSelector((state: RootState) => state.auth);
+    const { wishlist, loadingProductId } = useAppSelector((state: RootState) => state.wishlist);
+
     const [isAdding, setIsAdding] = useState(false);
     const [showModal, setShowModal] = useState(false);
     const [selectedColor, setSelectedColor] = useState<string | null>(null);
     const [selectedSize, setSelectedSize] = useState<string | null>(null);
+
+    const isInWishlist = wishlist?.some(item => item.product_id === product.id);
+    const isWishlistLoading = loadingProductId === product.id;
+
+    const handleWishlistToggle = async (e: React.MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        if (!token) {
+            toast.error("Please login to manage your wishlist");
+            return;
+        }
+
+        try {
+            if (isInWishlist) {
+                await dispatch(removeFromWishlist(product.id)).unwrap();
+                toast.success("Removed from wishlist");
+            } else {
+                await dispatch(addToWishlist(product.id)).unwrap();
+                toast.success("Added to wishlist");
+            }
+        } catch (error: any) {
+            toast.error(error || "Something went wrong");
+        }
+    };
 
     const discountBadge = product.discount || product.badge;
 
@@ -146,7 +176,7 @@ export default function ProductCard({
 
                     {/* Title */}
                     <Link href={`/product/${encodeURIComponent(product.slug)}`}>
-                        <h3 className="text-gray-900 text-base font-semibold mb-3 hover:text-green-700 transition-colors line-clamp-2 min-h-[3rem]">
+                        <h3 className="text-gray-900 text-base font-semibold mb-3 hover:text-green-700 transition-colors line-clamp-2 min-h-12">
                             {product.title}
                         </h3>
                     </Link>
@@ -185,8 +215,18 @@ export default function ProductCard({
                             )}
                         </button>
 
-                        <button className="w-11 h-11 bg-white border-2 border-green-700 text-green-700 hover:bg-green-50 rounded-full flex items-center justify-center transition-colors flex-shrink-0">
-                            <Heart className="w-5 h-5" fill="currentColor" />
+                        <button
+                            onClick={handleWishlistToggle}
+                            className={`w-11 h-11 bg-white border-2 rounded-full flex items-center justify-center transition-colors shrink-0 ${isInWishlist ? 'border-red-500 text-red-500' : 'border-green-700 text-green-700 hover:bg-green-50'}`}
+                        >
+                            {isWishlistLoading ? (
+                                <Loader2 className="w-5 h-5 animate-spin" />
+                            ) : (
+                                <Heart
+                                    className="w-5 h-5"
+                                    fill={isInWishlist ? "currentColor" : "none"}
+                                />
+                            )}
                         </button>
                     </div>
                 </div>
