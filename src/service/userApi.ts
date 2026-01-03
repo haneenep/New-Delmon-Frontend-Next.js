@@ -1,22 +1,18 @@
 import api from "../lib/axios";
-import { GetProfileResponse } from "../types/user.types";
+import { GetOrderDetailsResponse, GetProfileResponse, GetReturnOrdersResponse, GetUserOrdersResponse } from "../types/user.types";
 
-
-// Get current user profile
 export const getUserProfile = () => {
     return api.get<GetProfileResponse>("/profile");
 };
 
-// Update user profile
-export const updateUserProfile = (data: {
-    name?: string;
-    email?: string;
-    contact_no?: string;
-}) => {
-    return api.put("/user/profile", data);
+export const updateUserProfile = (data: FormData) => {
+    return api.post("/profile/update", data, {
+        headers: {
+            "Content-Type": "multipart/form-data",
+        },
+    });
 };
 
-// Change password
 export const changePassword = (data: {
     current_password: string;
     password: string;
@@ -25,14 +21,22 @@ export const changePassword = (data: {
     return api.post("/password/update", data);
 };
 
-// Upload profile picture
-export const uploadProfilePicture = (file: File) => {
-    const formData = new FormData();
-    formData.append("profile_picture", file);
-
-    return api.post("/user/profile-picture", formData, {
-        headers: {
-            "Content-Type": "multipart/form-data",
-        },
-    });
+export const getUserOrders = async () => {
+    const res = await api.get<GetUserOrdersResponse>("/user/orders");
+    return res.data;
 };
+
+export const getOrderDetails = async (id: number) => {
+    const res = await api.get<GetOrderDetailsResponse>(`/user/order/${id}`);
+    return res.data;
+};
+
+export const getReturnOrders = async () => {
+    const res = await api.get<GetReturnOrdersResponse>("/user/returned-orders");
+    return res.data;
+};
+
+export const trackOrder = async (code: string) => {
+    const res = await api.post<GetUserOrdersResponse>("/order/track", { code });
+    return res.data;
+}

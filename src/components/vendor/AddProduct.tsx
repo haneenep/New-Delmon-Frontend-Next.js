@@ -170,7 +170,7 @@ export default function AddProductPage() {
 
             const response = await vendorApis.createProduct(submitData);
 
-            if (response.success) {
+            if (response.status) {
                 toast.success(`Product "${response.data.product_name}" added successfully!`);
 
                 // Reset form
@@ -196,8 +196,6 @@ export default function AddProductPage() {
                     multiImages: null
                 });
 
-                // Optionally refresh the vendor products list
-                // dispatch(fetchVendorProducts());
             } else {
                 toast.error(response.message || 'Failed to add product');
             }

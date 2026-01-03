@@ -10,10 +10,10 @@ import {
   Lock,
   LogOut
 } from "lucide-react";
-import ProtectedRoute from "@/src/components/auth/ProtectedRoute";
+import { usePathname, useRouter } from "next/navigation";
 import { useAppDispatch } from "@/src/hooks/useRedux";
 import { logout } from "@/src/redux/auth/authSlice";
-import { useRouter } from "next/navigation";
+import ProtectedRoute from "@/src/components/auth/ProtectedRoute";
 
 const menu = [
   { label: "Dashboard", href: "/account", icon: LayoutDashboard },
@@ -31,6 +31,7 @@ export default function AccountLayout({
 }) {
   const dispatch = useAppDispatch();
   const router = useRouter();
+  const pathname = usePathname()
 
   const handleLogout = () => {
     dispatch(logout());
@@ -39,45 +40,60 @@ export default function AccountLayout({
 
   return (
     <ProtectedRoute>
-      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 py-8 md:py-12">
-        <div className="grid md:grid-cols-[280px_1fr] gap-8">
+      <section className="bg-white">
+
+      <div className="max-w-[1400px] mx-auto bg-white px-4 sm:px-6 py-8 md:py-12">
+        {/* Breadcrumb */}
+        <div className="mb-6 text-sm text-gray-500">
+          <span>Delmon</span>
+          <span className="mx-2">{'>'}</span>
+          <span>Home</span>
+          <span className="mx-2">{'>'}</span>
+          <span>User Dashboard</span>
+        </div>
+
+        <div className="grid md:grid-cols-[320px_1fr] gap-8">
           {/* Sidebar */}
-          <aside className="space-y-6">
-            <div className="bg-white border border-gray-100 rounded-xl shadow-sm p-4">
-              <nav className="space-y-1">
+          <aside>
+            <div className="bg-white border-2 border-gray-200 rounded-2xl shadow-sm overflow-hidden">
+              <nav>
                 {menu.map((item) => {
                   const Icon = item.icon;
+                  const isActive = pathname === item.href;
                   return (
                     <Link
                       key={item.href}
                       href={item.href}
-                      className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-50 hover:text-black transition-colors"
+                      className={`flex items-center gap-4 px-6 py-4 text-base font-medium transition-colors ${
+                        isActive
+                          ? "bg-green-700 text-white"
+                          : "text-gray-700 hover:bg-gray-50"
+                      }`}
                     >
-                      <Icon className="w-4 h-4" />
+                      <Icon className="w-5 h-5" />
                       {item.label}
                     </Link>
                   );
                 })}
 
-                <div className="pt-4 mt-4 border-t border-gray-100">
-                  <button
-                    onClick={handleLogout}
-                    className="w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-red-600 rounded-lg hover:bg-red-50 transition-colors text-left"
-                  >
-                    <LogOut className="w-4 h-4" />
-                    Logout
-                  </button>
-                </div>
+                <button
+                  onClick={handleLogout}
+                  className="w-full flex items-center gap-4 px-6 py-4 text-base font-medium text-gray-700 hover:bg-green-100 transition-colors text-left bg-green-50"
+                >
+                  <LogOut className="w-5 h-5" />
+                  Logout
+                </button>
               </nav>
             </div>
           </aside>
 
           {/* Content */}
-          <section className="bg-white border border-gray-100 rounded-xl shadow-sm p-6 md:p-8 min-h-[500px]">
+          <section className="min-h-[500px]">
             {children}
           </section>
         </div>
       </div>
+                  </section>
     </ProtectedRoute>
   );
 }

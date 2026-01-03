@@ -1,79 +1,127 @@
 "use client";
 
-import React from 'react';
-import { RotateCcw, AlertCircle } from "lucide-react";
-import Button from "@/src/components/common/Button";
-
-const mockReturns = [
-    {
-        id: "#RET-2023",
-        orderId: "ORD-7234",
-        date: "Oct 26, 2024",
-        status: "Approved",
-        item: "Slim Fit Jeans",
-        refundAmount: "$45.00",
-        image: "https://images.unsplash.com/photo-1542272617-08f086303b94?w=100&q=80"
-    }
-];
+import React, { useEffect, useState } from 'react';
+import { Eye, Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { ReturnOrderData } from '@/src/types/user.types';
+import { getReturnOrders } from '@/src/service/userApi';
 
 export default function ReturnOrdersPage() {
+    const [returnOrders, setReturnOrders] = useState<ReturnOrderData[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+    const router = useRouter();
+
+    useEffect(() => {
+        fetchReturnOrders();
+    }, []);
+
+    const fetchReturnOrders = async () => {
+        try {
+            setLoading(true);
+            setError(null);
+            const response = await getReturnOrders();
+            setReturnOrders(response.data || []);
+        } catch (err: any) {
+            setError(err.response?.data?.message || "Failed to fetch return orders");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleViewOrder = (orderId: number) => {
+        router.push(`/account/return-orders/${orderId}`);
+    };
+
+    const formatDate = (dateString: string) => {
+        if (!dateString) return "N/A";
+        const date = new Date(dateString);
+        return date.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: '2-digit' });
+    };
+
+    if (loading) {
+        return (
+            <div className="flex justify-center items-center min-h-[400px]">
+                <Loader2 className="w-8 h-8 animate-spin text-green-700" />
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="text-center py-12">
+                <p className="text-red-600 mb-4">{error}</p>
+                <button
+                    onClick={fetchReturnOrders}
+                    className="bg-green-700 text-white px-6 py-2 rounded-full hover:bg-green-800 transition-colors"
+                >
+                    Try Again
+                </button>
+            </div>
+        );
+    }
+
     return (
         <div className="space-y-6">
-            <div>
-                <h2 className="text-xl font-bold text-gray-900">Return Orders</h2>
-                <p className="text-gray-500 text-sm mt-1">Manage your returns and refunds.</p>
-            </div>
-
-            <div className="space-y-4">
-                {mockReturns.length > 0 ? (
-                    mockReturns.map((ret) => (
-                        <div key={ret.id} className="border border-gray-200 rounded-xl p-4 md:p-6 hover:shadow-sm transition-shadow">
-                            <div className="flex flex-col md:flex-row gap-6">
-                                <div className="w-20 h-20 bg-gray-100 rounded-lg shrink-0 overflow-hidden">
-                                    <img src={ret.image} alt="Product" className="w-full h-full object-cover" />
-                                </div>
-
-                                <div className="flex-1 space-y-2">
-                                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-2">
-                                        <h3 className="font-semibold text-gray-900">{ret.item}</h3>
-                                        <span className="px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700 border border-green-200 w-fit">
-                                            {ret.status}
+            {/* Table */}
+            <div className="overflow-x-auto">
+                <table className="w-full">
+                    <thead>
+                        <tr className="border-2 border-gray-300 rounded-full">
+                            <th className="px-6 py-4 text-left text-sm font-medium text-gray-900 first:rounded-l-full last:rounded-r-full">SL</th>
+                            <th className="px-6 py-4 text-left text-sm font-medium text-gray-900">Date</th>
+                            <th className="px-6 py-4 text-left text-sm font-medium text-gray-900">Total</th>
+                            <th className="px-6 py-4 text-left text-sm font-medium text-gray-900">Payment</th>
+                            <th className="px-6 py-4 text-left text-sm font-medium text-gray-900">Invoice</th>
+                            <th className="px-6 py-4 text-left text-sm font-medium text-gray-900">Reason</th>
+                            <th className="px-6 py-4 text-left text-sm font-medium text-gray-900">Status</th>
+                            <th className="px-6 py-4 text-left text-sm font-medium text-gray-900 first:rounded-l-full last:rounded-r-full">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {returnOrders.length === 0 ? (
+                            <tr>
+                                <td colSpan={8} className="px-6 py-12 text-center text-gray-500">
+                                    No return orders found
+                                </td>
+                            </tr>
+                        ) : (
+                            returnOrders.map((order, index) => (
+                                <tr key={order.id} className="border-b border-gray-200 last:border-0">
+                                    <td className="px-6 py-4 text-sm text-gray-700">#{index + 1}</td>
+                                    <td className="px-6 py-4 text-sm text-gray-700">{formatDate(order.return_date)}</td>
+                                    <td className="px-6 py-4 text-sm text-gray-700">{order.currency} {order.amount.toFixed(2)}</td>
+                                    <td className="px-6 py-4 text-sm text-gray-700">{order.payment_method}</td>
+                                    <td className="px-6 py-4 text-sm text-gray-700">{order.invoice_no}</td>
+                                    <td className="px-6 py-4 text-sm text-gray-700">
+                                        <span className="line-clamp-1" title={order.return_reason}>
+                                            {order.return_reason || "N/A"}
                                         </span>
-                                    </div>
-
-                                    <div className="text-sm text-gray-500 space-y-1">
-                                        <p>Return ID: {ret.id} • Order ID: {ret.orderId}</p>
-                                        <p>Requested on: {ret.date}</p>
-                                    </div>
-
-                                    <div className="flex items-center justify-between pt-3 mt-2 border-t border-gray-50">
-                                        <p className="text-sm font-medium text-gray-900">Refund Amount: {ret.refundAmount}</p>
-                                        <Button variant="outline" className="text-sm py-1.5 h-auto">
-                                            View Status
-                                        </Button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    ))
-                ) : (
-                    <div className="text-center py-12 bg-gray-50 rounded-lg border border-dashed border-gray-300">
-                        <RotateCcw className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-                        <h3 className="text-lg font-medium text-gray-900">No returns yet</h3>
-                        <p className="text-gray-500 max-w-sm mx-auto mt-2">If you need to return an item, go to your Orders page and select the item you wish to return.</p>
-                    </div>
-                )}
-            </div>
-
-            <div className="mt-8 bg-blue-50 border border-blue-100 rounded-xl p-4 flex items-start gap-3">
-                <AlertCircle className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
-                <div>
-                    <h4 className="font-semibold text-blue-900">Return Policy</h4>
-                    <p className="text-sm text-blue-700 mt-1">
-                        You can return most items within 30 days of delivery for a full refund.
-                        Items must be in original condition.
-                    </p>
-                </div>
+                                    </td>
+                                    <td className="px-6 py-4 text-sm">
+                                        <span className={`px-3 py-1 rounded-full text-xs font-medium ${order.status === 'delivered' ? 'bg-green-100 text-green-800' :
+                                                order.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                                                    order.status === 'processing' ? 'bg-blue-100 text-blue-800' :
+                                                        order.status === 'cancelled' ? 'bg-red-100 text-red-800' :
+                                                            'bg-gray-100 text-gray-800'
+                                            }`}>
+                                            {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                                        </span>
+                                    </td>
+                                    <td className="px-6 py-4 text-sm text-gray-700">
+                                        <button
+                                            onClick={() => handleViewOrder(order.id)}
+                                            className="hover:text-green-600 transition-colors"
+                                            title="View Return Order Details"
+                                        >
+                                            <Eye className="w-5 h-5" />
+                                        </button>
+                                    </td>
+                                </tr>
+                            ))
+                        )}
+                    </tbody>
+                </table>
             </div>
         </div>
     );

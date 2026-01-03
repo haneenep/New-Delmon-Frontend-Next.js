@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { fetchUserProfile, updateUserPassword } from "./userThunk";
+import { fetchUserProfile, updateUserPassword, updateUserProfile } from "./userThunk";
 import { fetchUserProfile as fetchAuthProfile } from "../auth/authThunk";
 import { UserData } from "@/src/types/user.types";
 
@@ -66,6 +66,24 @@ const userSlice = createSlice({
             state.successMessage = action.payload?.message || "Password updated successfully";
         });
         builder.addCase(updateUserPassword.rejected, (state, action) => {
+            state.loading = false;
+            state.error = action.payload as string;
+        });
+
+        // Update Profile
+        builder.addCase(updateUserProfile.pending, (state) => {
+            state.loading = true;
+            state.error = null;
+            state.successMessage = null;
+        });
+        builder.addCase(updateUserProfile.fulfilled, (state, action: any) => {
+            state.loading = false;
+            state.successMessage = action.payload?.message || "Profile updated successfully";
+            if (action.payload?.data) {
+                state.profile = action.payload.data;
+            }
+        });
+        builder.addCase(updateUserProfile.rejected, (state, action) => {
             state.loading = false;
             state.error = action.payload as string;
         });

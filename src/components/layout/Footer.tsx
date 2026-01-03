@@ -34,12 +34,12 @@ const Footer = () => {
 
               <div className="space-y-2 text-sm">
                 <p className="text-white">
-                  The Atomic Near Kristal, Benguluru, 695581, Karnataka.
+                  Dubai, United Arab Emirates
                 </p>
                 <p className="text-white">
-                  Tel: +91 471 22334455 / 65 8877 6655
+                  Tel: +971 42 88 1400
                 </p>
-                <p className="text-white">Email: contact@chapter.com</p>
+                <p className="text-white">Email: info@newdelmonstationery.com</p>
               </div>
             </div>
 
@@ -50,12 +50,12 @@ const Footer = () => {
               </h3>
               <ul className="space-y-2 md:space-y-3">
                 <li>
-                  <a
-                    href="#"
+                  <Link
+                    href="/about-us"
                     className="text-white text-sm hover:text-gray-200 transition-colors"
                   >
                     About Us
-                  </a>
+                  </Link>
                 </li>
                 <li>
                   <Link
@@ -74,28 +74,20 @@ const Footer = () => {
                   </Link>
                 </li>
                 <li>
-                  <a
-                    href="#"
+                  <Link
+                    href="/support-center"
                     className="text-white text-sm hover:text-gray-200 transition-colors"
                   >
                     Support Center
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a
-                    href="#"
+                  <Link
+                    href="/careers"
                     className="text-white text-sm hover:text-gray-200 transition-colors"
                   >
                     Careers
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="#"
-                    className="text-white text-sm hover:text-gray-200 transition-colors"
-                  >
-                    Contact Us
-                  </a>
+                  </Link>
                 </li>
               </ul>
             </div>
@@ -107,44 +99,44 @@ const Footer = () => {
               </h3>
               <ul className="space-y-2 md:space-y-3">
                 <li>
-                  <a
-                    href="#"
+                  <Link
+                    href="/login"
                     className="text-white text-sm hover:text-gray-200 transition-colors"
                   >
                     Login
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a
-                    href="#"
+                  <Link
+                    href="/account/orders"
                     className="text-white text-sm hover:text-gray-200 transition-colors"
                   >
                     Order History
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a
-                    href="#"
+                  <Link
+                    href="/wishlist"
                     className="text-white text-sm hover:text-gray-200 transition-colors"
                   >
                     My Wishlist
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a
-                    href="#"
+                  <Link
+                    href="/account/track-orders"
                     className="text-white text-sm hover:text-gray-200 transition-colors"
                   >
                     Track Order
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a
-                    href="#"
+                  <Link
+                    href="/account/details"
                     className="text-white text-sm hover:text-gray-200 transition-colors"
                   >
                     Shipping Details
-                  </a>
+                  </Link>
                 </li>
               </ul>
             </div>
@@ -165,27 +157,27 @@ const Footer = () => {
                 </li>
                 <li>
                   <Link
-                    href="/login"
+                    href="/login?role=vendor"
                     className="text-white text-sm hover:text-gray-200 transition-colors"
                   >
                     Login to Vendor Panel
                   </Link>
                 </li>
                 <li>
-                  <a
-                    href="#"
+                  <Link
+                    href="/contract/request"
                     className="text-white text-sm hover:text-gray-200 transition-colors"
                   >
-                    Login to Contract Panel
-                  </a>
+                    Contract Panel
+                  </Link>
                 </li>
                 <li>
-                  <a
-                    href="#"
+                  <Link
+                    href="/contract/products"
                     className="text-white text-sm hover:text-gray-200 transition-colors"
                   >
                     See Contract Products
-                  </a>
+                  </Link>
                 </li>
               </ul>
             </div>

@@ -36,10 +36,10 @@ export const deleteVendorProduct = createAsyncThunk(
 
 export const updateVendorProduct = createAsyncThunk(
     "vendor/updateVendorProduct",
-    async ({ productId, productData }: { productId: string; productData: FormData }, { rejectWithValue }) => {
+    async ({ productId, productData, newStatus }: { productId: string; productData: FormData; newStatus?: number }, { rejectWithValue }) => {
         try {
             const response = await vendorApis.updateProduct(productId, productData);
-            return response as UpdateProductResponse;
+            return { ...response, newStatus } as UpdateProductResponse & { newStatus?: number };
         } catch (error: any) {
             return rejectWithValue(error.response?.data?.message || "Failed to update product");
         }

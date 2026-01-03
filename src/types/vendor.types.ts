@@ -134,7 +134,7 @@ export interface AllProductData {
 
 
 export interface AddProductResponse {
-  success: boolean
+  status: boolean
   message: string
   data: AddProductData
 }
@@ -217,7 +217,7 @@ export interface UpdateProductData {
   meta_keyword: any
   meta_description: any
   wholesale: any
-  status: string
+  status: number
   created_at: string
   updated_at: string
 }

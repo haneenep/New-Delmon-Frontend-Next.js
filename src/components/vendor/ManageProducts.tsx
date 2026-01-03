@@ -37,20 +37,19 @@ export default function ManageProductPage() {
     };
 
     const handleStatusToggle = async (product: AllProductData) => {
-        const newStatus = product.status === 1 ? 0 : 1;
+        const newStatus = Number(product.status) === 1 ? 0 : 1;
         const formData = new FormData();
         formData.append('status', newStatus.toString());
 
         try {
             const resultAction = await dispatch(updateVendorProduct({
                 productId: product.id.toString(),
-                productData: formData
+                productData: formData,
+                newStatus: newStatus
             }));
 
             if (updateVendorProduct.fulfilled.match(resultAction)) {
                 toast.success(`Product ${newStatus === 1 ? 'activated' : 'deactivated'} successfully`);
-            } else {
-                toast.error("Failed to update status");
             }
         } catch (err) {
             toast.error("An error occurred while updating status");
@@ -182,21 +181,15 @@ export default function ManageProductPage() {
                                         <td className="py-4 px-6 text-sm text-gray-700">{product.product_qty}</td>
                                         <td className="py-4 px-6 text-sm text-gray-700">{calculateDiscount(product)}</td>
                                         <td className="py-4 px-6">
-                                            <span className={`inline-block px-4 py-1 rounded-full text-xs font-medium ${product.status === 1
+                                            <span className={`inline-block px-4 py-1 rounded-full text-xs font-medium ${Number(product.status) === 1
                                                 ? 'bg-green-100 text-green-700'
                                                 : 'bg-red-100 text-red-700'
                                                 }`}>
-                                                {product.status === 1 ? 'Active' : 'Inactive'}
+                                                {Number(product.status) === 1 ? 'Active' : 'Inactive'}
                                             </span>
                                         </td>
                                         <td className="py-4 px-6">
                                             <div className="flex items-center gap-2">
-                                                <button
-                                                    className="p-2 hover:bg-gray-100 rounded-lg transition-colors border border-gray-300"
-                                                    title="View"
-                                                >
-                                                    <Eye className="w-4 h-4 text-gray-600" />
-                                                </button>
                                                 <Link
                                                     href={`/vendor/edit-product/${product.id}`}
                                                     className="p-2 hover:bg-gray-100 rounded-lg transition-colors border border-gray-300"
@@ -219,15 +212,15 @@ export default function ManageProductPage() {
                                                 <button
                                                     onClick={() => handleStatusToggle(product)}
                                                     disabled={updating === product.id.toString()}
-                                                    className={`p-2 rounded-lg transition-colors border ${product.status === 1
+                                                    className={`p-2 rounded-lg transition-colors border ${Number(product.status) === 1
                                                         ? 'border-green-200 hover:bg-green-50'
                                                         : 'border-red-200 hover:bg-red-50'
                                                         }`}
-                                                    title={product.status === 1 ? "Deactivate" : "Activate"}
+                                                    title={Number(product.status) === 1 ? "Deactivate" : "Activate"}
                                                 >
                                                     {updating === product.id.toString() ? (
                                                         <Loader2 className="w-4 h-4 animate-spin text-gray-600" />
-                                                    ) : product.status === 1 ? (
+                                                    ) : Number(product.status) === 1 ? (
                                                         <ThumbsUp className="w-4 h-4 text-green-600" />
                                                     ) : (
                                                         <ThumbsDown className="w-4 h-4 text-red-600" />

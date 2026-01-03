@@ -1,12 +1,10 @@
 "use client";
 
+import { AppDispatch, RootState } from '@/src/redux/store';
+import { clearUserMessage } from '@/src/redux/user/userSlice';
+import { updateUserPassword } from '@/src/redux/user/userThunk';
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { RootState, AppDispatch } from "@/src/redux/store";
-import FormInput from "@/src/components/common/FormInput";
-import Button from "@/src/components/common/Button";
-import { updateUserPassword } from "@/src/redux/user/userThunk";
-import { clearUserMessage } from "@/src/redux/user/userSlice";
 
 export default function ChangePasswordPage() {
   const dispatch = useDispatch<AppDispatch>();
@@ -18,7 +16,6 @@ export default function ChangePasswordPage() {
     newpassword_confirmation: ""
   });
 
-  // Clear messages on unmount
   useEffect(() => {
     return () => {
       dispatch(clearUserMessage());
@@ -40,10 +37,9 @@ export default function ChangePasswordPage() {
   };
 
   return (
-    <div className="space-y-6 max-w-lg">
+    <div className="space-y-6">
       <div>
-        <h2 className="text-xl font-bold text-gray-900">Change Password</h2>
-        <p className="text-gray-500 text-sm mt-1">Ensure your account is using a long, random password to stay secure.</p>
+        <h2 className="text-2xl font-bold text-gray-900">Change Password</h2>
       </div>
 
       {successMessage && (
@@ -58,39 +54,60 @@ export default function ChangePasswordPage() {
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-4 text-black">
-        <FormInput
-          name="oldpassword"
-          type="password"
-          label="Current Password"
-          placeholder="Enter current password"
-          value={formData.oldpassword}
-          onChange={handleChange}
-          required
-        />
-        <FormInput
-          name="newpassword"
-          type="password"
-          label="New Password"
-          placeholder="Enter new password"
-          value={formData.newpassword}
-          onChange={handleChange}
-          required
-        />
-        <FormInput
-          name="newpassword_confirmation"
-          type="password"
-          label="Confirm Password"
-          placeholder="Confirm new password"
-          value={formData.newpassword_confirmation}
-          onChange={handleChange}
-          required
-        />
+      <form onSubmit={handleSubmit} className="space-y-5 max-w-3xl text-gray-900">
+        <div>
+          <label htmlFor="oldpassword" className="block text-sm font-medium text-gray-700 mb-2">
+            Old Password*
+          </label>
+          <input
+            type="password"
+            id="oldpassword"
+            name="oldpassword"
+            value={formData.oldpassword}
+            onChange={handleChange}
+            required
+            className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-green-600 transition-colors"
+          />
+        </div>
+
+        <div>
+          <label htmlFor="newpassword" className="block text-sm font-medium text-gray-700 mb-2">
+            New Password*
+          </label>
+          <input
+            type="password"
+            id="newpassword"
+            name="newpassword"
+            value={formData.newpassword}
+            onChange={handleChange}
+            required
+            className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-green-600 transition-colors"
+          />
+        </div>
+
+        <div>
+          <label htmlFor="newpassword_confirmation" className="block text-sm font-medium text-gray-700 mb-2">
+            Confirm Password*
+          </label>
+          <input
+            type="password"
+            id="newpassword_confirmation"
+            name="newpassword_confirmation"
+            value={formData.newpassword_confirmation}
+            onChange={handleChange}
+            required
+            className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-green-600 transition-colors"
+          />
+        </div>
 
         <div className="pt-2">
-          <Button loading={loading} type="submit">
-            Update Password
-          </Button>
+          <button
+            type="submit"
+            disabled={loading}
+            className="bg-green-700 text-white font-medium px-8 py-3 rounded-full hover:bg-green-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {loading ? "Saving..." : "Save Change"}
+          </button>
         </div>
       </form>
     </div>

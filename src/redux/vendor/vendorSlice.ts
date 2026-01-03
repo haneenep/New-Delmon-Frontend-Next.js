@@ -42,7 +42,10 @@ export const vendorSlice = createSlice({
         });
         builder.addCase(fetchVendorProducts.fulfilled, (state, action) => {
             state.loading = false;
-            state.products = action.payload.data || [];
+            state.products = (action.payload.data || []).map(product => ({
+                ...product,
+                status: Number(product.status)
+            }));
         });
         builder.addCase(fetchVendorProducts.rejected, (state, action) => {
             state.loading = false;
@@ -71,21 +74,15 @@ export const vendorSlice = createSlice({
         });
         builder.addCase(updateVendorProduct.fulfilled, (state, action) => {
             state.updating = null;
-            // Update the specific product in the list if response contains updated data
             if (action.payload.success && action.payload.data) {
                 const updatedProduct = action.payload.data;
                 const index = state.products.findIndex(
-                    (p) => p.id === updatedProduct.id
+                    (p) => p.id.toString() === updatedProduct.id.toString()
                 );
                 if (index !== -1) {
-                    // Map UpdateProductData to AllProductData if they differ, 
-                    // or just update common fields. 
-                    // Since AllProductData usually has the list view structure.
-                    // Map UpdateProductData to AllProductData
                     state.products[index] = {
                         ...state.products[index],
                         ...updatedProduct,
-                        // Convert string fields from API to the numbers expected by local state
                         brand_id: Number(updatedProduct.brand_id),
                         category_id: Number(updatedProduct.category_id),
                         subcategory_id: updatedProduct.subcategory_id ? Number(updatedProduct.subcategory_id) : null,
@@ -93,7 +90,7 @@ export const vendorSlice = createSlice({
                         featured: updatedProduct.featured ? Number(updatedProduct.featured) : 0,
                         special_offer: updatedProduct.special_offer ? Number(updatedProduct.special_offer) : 0,
                         special_deals: Number(updatedProduct.special_deals),
-                        status: Number(updatedProduct.status)
+                        status: action.payload.newStatus !== undefined ? action.payload.newStatus : Number(updatedProduct.status)
                     };
                 }
             }

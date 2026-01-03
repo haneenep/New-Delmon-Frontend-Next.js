@@ -1,92 +1,182 @@
 "use client";
 
+import { fetchUserProfile, updateUserProfile } from "@/src/redux/user/userThunk";
+import { AppDispatch, RootState } from "@/src/redux/store";
 import { useEffect } from "react";
-import { RootState, AppDispatch } from "@/src/redux/store";
 import { useSelector, useDispatch } from "react-redux";
-import FormInput from "@/src/components/common/FormInput";
-import Button from "@/src/components/common/Button";
-import { fetchUserProfile } from "@/src/redux/user/userThunk";
+import { toast } from "sonner";
+import { clearUserMessage } from "@/src/redux/user/userSlice";
 
 export default function AccountDetailsPage() {
   const dispatch = useDispatch<AppDispatch>();
-  const { profile, loading } = useSelector((state: RootState) => state.user);
+  const { profile, loading, successMessage, error } = useSelector((state: RootState) => state.user);
 
   useEffect(() => {
     const fetchProfile = async () => {
       await dispatch(fetchUserProfile());
-    }
+    };
     fetchProfile();
   }, [dispatch]);
 
-  /* 
-     Using key={profile?.id} to force re-render inputs when profile loads, 
-     ensuring defaultValue is populated correctly.
-  */
+  useEffect(() => {
+    if (successMessage) {
+      toast.success(successMessage);
+      dispatch(clearUserMessage());
+    }
+    if (error) {
+      toast.error(error);
+      dispatch(clearUserMessage());
+    }
+  }, [successMessage, error, dispatch]);
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const form = e.currentTarget;
+    const formData = new FormData(form);
+
+    // Create a new FormData to ensure correct keys for API
+    const apiFormData = new FormData();
+    apiFormData.append("username", formData.get("username") as string);
+    apiFormData.append("name", formData.get("fullname") as string);
+    apiFormData.append("phone", formData.get("phone") as string);
+    apiFormData.append("address", formData.get("address") as string);
+
+    const photoFile = formData.get("photo");
+    if (photoFile && (photoFile as File).size > 0) {
+      apiFormData.append("photo", photoFile);
+    }
+
+    dispatch(updateUserProfile(apiFormData));
+  };
+
   const key = profile ? profile.id : "loading";
 
   return (
-    <div className="space-y-6 max-w-2xl">
+    <div className="space-y-6">
+      {/* ✅ Corrected heading */}
       <div>
-        <h2 className="text-xl font-bold text-gray-900">Account Details</h2>
-        <p className="text-gray-500 text-sm mt-1">Manage your profile information.</p>
+        <h2 className="text-2xl font-bold text-gray-900">
+          Account Details
+        </h2>
+        <p className="text-sm text-gray-600 mt-1">
+          Update your personal information and contact details
+        </p>
       </div>
 
-      <div className="grid md:grid-cols-2 gap-4" key={key}>
-        <FormInput
-          name="username"
-          label="User Name"
-          defaultValue={profile?.username}
-          disabled={loading}
-        />
-        <FormInput
-          name="name"
-          label="Full Name"
-          placeholder="Enter your full name"
-          defaultValue={profile?.name}
-          disabled={loading}
-        />
-        <FormInput
-          name="email"
-          label="Email Address"
-          type="email"
-          defaultValue={profile?.email}
-          disabled
-          className="bg-gray-50"
-        />
-        <FormInput
-          name="phone"
-          label="Phone Number"
-          type="tel"
-          defaultValue={profile?.phone}
-          disabled={loading}
-        />
-        <div className="md:col-span-2">
-          <FormInput
-            name="address"
-            label="Address"
-            placeholder="Enter your address"
-            defaultValue={profile?.address}
-            disabled={loading}
+      <form className="space-y-5 max-w-3xl text-gray-900" key={key} onSubmit={handleSubmit}>
+        <div className="grid md:grid-cols-2 gap-5">
+          <div>
+            <label
+              htmlFor="username"
+              className="block text-sm font-medium text-gray-700 mb-2"
+            >
+              User Name *
+            </label>
+            <input
+              type="text"
+              id="username"
+              name="username"
+              defaultValue={profile?.username}
+              disabled={loading}
+              className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-green-600 transition-colors disabled:bg-gray-50"
+            />
+          </div>
+
+          <div>
+            <label
+              htmlFor="fullname"
+              className="block text-sm font-medium text-gray-700 mb-2"
+            >
+              Full Name *
+            </label>
+            <input
+              type="text"
+              id="fullname"
+              name="fullname"
+              defaultValue={profile?.name}
+              disabled={loading}
+              className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-green-600 transition-colors disabled:bg-gray-50"
+            />
+          </div>
+        </div>
+
+        <div>
+          <label
+            htmlFor="email"
+            className="block text-sm font-medium text-gray-700 mb-2"
+          >
+            Email *
+          </label>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            defaultValue={profile?.email}
+            disabled
+            className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg bg-gray-50 cursor-not-allowed"
           />
         </div>
 
-        <div className="md:col-span-2">
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Profile Picture
+        <div>
+          <label
+            htmlFor="phone"
+            className="block text-sm font-medium text-gray-700 mb-2"
+          >
+            Phone Number *
+          </label>
+          <input
+            type="tel"
+            id="phone"
+            name="phone"
+            defaultValue={profile?.phone}
+            disabled={loading}
+            className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-green-600 transition-colors disabled:bg-gray-50"
+          />
+        </div>
+
+        <div>
+          <label
+            htmlFor="address"
+            className="block text-sm font-medium text-gray-700 mb-2"
+          >
+            Address *
+          </label>
+          <textarea
+            id="address"
+            name="address"
+            rows={3}
+            defaultValue={profile?.address}
+            disabled={loading}
+            className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-green-600 transition-colors disabled:bg-gray-50 resize-none"
+          />
+        </div>
+
+        <div>
+          <label
+            htmlFor="photo"
+            className="block text-sm font-medium text-gray-700 mb-2"
+          >
+            Profile Photo
           </label>
           <input
             type="file"
-            className="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-black file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-gray-50 file:text-gray-700 hover:file:bg-gray-100"
+            id="photo"
+            name="photo"
             disabled={loading}
+            className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-green-50 file:text-green-700 hover:file:bg-green-100 disabled:bg-gray-50"
           />
         </div>
-      </div>
 
-      <div className="pt-4">
-        <Button loading={loading}>
-          Save Changes
-        </Button>
-      </div>
+        <div className="pt-2">
+          <button
+            type="submit"
+            disabled={loading}
+            className="bg-green-700 text-white font-medium px-8 py-3 rounded-lg hover:bg-green-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {loading ? "Saving..." : "Save Changes"}
+          </button>
+        </div>
+      </form>
     </div>
   );
 }
